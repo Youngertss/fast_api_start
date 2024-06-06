@@ -1,17 +1,19 @@
 # from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from src.auth import database, schemas
-from sqlalchemy.ext.asyncio import AsyncSession
 
-def get_role(db: AsyncSession, role_id: int):
-    return db.query(database.Role).filter(database.Role.id==role_id).first()
+async def get_role(db: AsyncSession, role_id: int):
+    result = await db.execute(select(database.Role).filter(database.Role.id == role_id))
+    return result.scalars().first()
 
 
-def create_role(db: AsyncSession, role: schemas.RoleCreate):
+async def create_role(db: AsyncSession, role: schemas.RoleCreate):
     db_role = database.Role(**role.model_dump())
     db.add(db_role)
-    db.commit()
-    db.refresh(db_role)
+    await db.commit()
+    await db.refresh(db_role)
     return db_role
 
 

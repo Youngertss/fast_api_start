@@ -4,7 +4,6 @@ from time import sleep
 
 from fastapi import Depends, FastAPI#, HTTPException
 # from sqlalchemy.orm import Session
-from fastapi_users import FastAPIUsers
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -14,13 +13,13 @@ from redis import asyncio as aioredis
 
 from src import database#, schemas, crud
 from src.database import engine#, SessionLocal, engine
-from src.auth.manager import get_user_manager
-from src.auth.auth import auth_backend
+from src.auth.auth import auth_backend, fastapi_users, current_user
 from src.auth.schemas import UserRead, UserCreate
 from src.auth.database import User#, get_user_db
 from src.auth.routers_role import router as routers_role
 from src.operations.routers import router as router_operation
 from src.operations.models import Operation
+from src.tasks.router import router as router_tasks
 
 
 async def create_tables() -> None:
@@ -36,12 +35,6 @@ async def startup() -> None:
     # Кэширование
     redis = aioredis.from_url("redis://localhost", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    
-fastapi_users = FastAPIUsers[User, int](
-    get_user_manager,
-    [auth_backend],
-)
-
 
 @app.get("/lo")
 @cache(expire=60)
@@ -49,11 +42,13 @@ def long_operation():
     sleep(4)
     return "long text with long time!!!!"
 
+
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
     tags=["auth"],
 )
+
 
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
@@ -63,12 +58,10 @@ app.include_router(
 
 app.include_router(router_operation)
 app.include_router(routers_role)
-
-
-current_active_user = fastapi_users.current_user(active=True)
+app.include_router(router_tasks)
 
 @app.get("/protected-route")
-def protected_route(user: User = Depends(current_active_user)):
+def protected_route(user: User = Depends(current_user)):
     return f"Hello, {user.email}"
 
 @app.get("/unprotected-route")
