@@ -12,11 +12,16 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model = OperationRead)
+@router.get('/')
 async def get_specific_operations(operation_id: int, session: AsyncSession = Depends(get_async_session)):
     query = select(Operation).where(Operation.id == operation_id)
     result = await session.execute(query)
-    return result.scalars().first()
+    # return result.scalars().first()
+    return {
+            "status": "success",
+            "data": result.scalars().all(),
+            "details": None
+        }
 
 
 @router.post('/')

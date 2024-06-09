@@ -8,5 +8,9 @@ DB_NAME = os.environ.get('DB_NAME')
 DB_USER = os.environ.get('DB_USER')
 DB_PASS = os.environ.get('DB_PASS')
 
+DB_NAME_TEST = os.environ.get('DB_NAME_TEST')
+# DB_PORT_TEST = os.environ.get('DB_PORT_TEST')
+
+
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD')
 SMTP_USER = os.environ.get('SMTP_USER')

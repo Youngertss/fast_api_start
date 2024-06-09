@@ -28,8 +28,7 @@ async def create_tables() -> None:
 # database.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-@app.on_event('startup')
+@asynccontextmanager
 async def startup() -> None:
     await create_tables()
     # Кэширование
