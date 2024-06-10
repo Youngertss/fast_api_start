@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from time import sleep
 
 from fastapi import Depends, FastAPI#, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 # from sqlalchemy.orm import Session
 
 from fastapi_cache import FastAPICache
@@ -28,6 +29,20 @@ async def create_tables() -> None:
 # database.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], #при деплои обязательно все прописать вруную
+    allow_headers=["*"],
+)
+
 @asynccontextmanager
 async def startup() -> None:
     await create_tables()
