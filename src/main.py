@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from time import sleep
 
 from fastapi import Depends, FastAPI#, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 # from sqlalchemy.orm import Session
 
@@ -17,10 +18,12 @@ from src.database import engine#, SessionLocal, engine
 from src.auth.auth import auth_backend, fastapi_users, current_user
 from src.auth.schemas import UserRead, UserCreate
 from src.auth.database import User#, get_user_db
+from src.operations.models import Operation
 from src.auth.routers_role import router as routers_role
 from src.operations.routers import router as router_operation
-from src.operations.models import Operation
 from src.tasks.router import router as router_tasks
+from src.pages.routers import router as router_pages
+
 
 
 async def create_tables() -> None:
@@ -30,10 +33,13 @@ async def create_tables() -> None:
 
 app = FastAPI()
 
+app.mount("/src/static", StaticFiles(directory="src/static"), name="static")
+
 origins = [
     "http://localhost",
     "http://localhost:8080",
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,6 +79,7 @@ app.include_router(
 app.include_router(router_operation)
 app.include_router(routers_role)
 app.include_router(router_tasks)
+app.include_router(router_pages) 
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_user)):
