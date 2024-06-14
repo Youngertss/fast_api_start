@@ -8,18 +8,12 @@ from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
 from sqlalchemy import Boolean, String, Integer, TIMESTAMP, ForeignKey, Boolean, ARRAY, Column, MetaData
 
 from src.config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
-# from src.models import Role
 from src.database import Base, DATABASE_URL, async_session_maker
 
 # DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
-metadata = MetaData()
-# class Base(DeclarativeBase):
-#     pass
-
 class Role(Base):
     __tablename__="role"
-    __metadata__ = metadata 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     permissions = Column(ARRAY(String))
@@ -28,7 +22,6 @@ class Role(Base):
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__="user"
-    __metadata__ = metadata 
     id: Mapped[str] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False)

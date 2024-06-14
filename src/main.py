@@ -23,6 +23,7 @@ from src.auth.routers_role import router as routers_role
 from src.operations.routers import router as router_operation
 from src.tasks.router import router as router_tasks
 from src.pages.routers import router as router_pages
+from src.chat.routers import router as router_chat
 
 
 
@@ -38,6 +39,9 @@ app.mount("/src/static", StaticFiles(directory="src/static"), name="static")
 origins = [
     "http://localhost",
     "http://localhost:8080",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
 ]
 
 
@@ -45,7 +49,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], #при деплои обязательно все прописать вруную
+    allow_methods=["*", "GET"], #при деплои обязательно все прописать вруную
     allow_headers=["*"],
 )
 
@@ -79,7 +83,8 @@ app.include_router(
 app.include_router(router_operation)
 app.include_router(routers_role)
 app.include_router(router_tasks)
-app.include_router(router_pages) 
+app.include_router(router_pages)
+app.include_router(router_chat) 
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_user)):
