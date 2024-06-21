@@ -25,6 +25,7 @@ from src.tasks.router import router as router_tasks
 from src.pages.routers import router as router_pages
 from src.chat.routers import router as router_chat
 
+from src.config import REDIS_HOST, REDIS_PORT
 
 
 async def create_tables() -> None:
@@ -57,7 +58,7 @@ app.add_middleware(
 async def startup() -> None:
     await create_tables()
     # Кэширование
-    redis = aioredis.from_url("redis://localhost", decode_responses=True)
+    redis = aioredis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}", decode_responses=True)
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
 @app.get("/lo")
